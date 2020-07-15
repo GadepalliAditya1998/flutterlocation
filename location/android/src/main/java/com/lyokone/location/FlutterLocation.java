@@ -12,6 +12,7 @@ import android.location.LocationManager;
 import android.location.OnNmeaMessageListener;
 import android.os.Build;
 import android.os.Looper;
+import android.provider.Settings;
 import android.util.Log;
 
 import com.google.android.gms.common.api.ApiException;
@@ -229,6 +230,13 @@ class FlutterLocation
                 loc.put("heading", (double) location.getBearing());
                 loc.put("time", (double) location.getTime());
 
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2)
+                    loc.put("isMockLocation", location.isFromMockProvider() ? 1.0 : 0.0);
+                else {
+                    loc.put("isMockLocation", isMockEnabled() ? 1.0 : 0.0);
+                }
+
+
                 if (getLocationResult != null) {
                     getLocationResult.success(loc);
                     getLocationResult = null;
@@ -420,6 +428,11 @@ class FlutterLocation
                         }
                     }
                 });
+    }
+
+    private boolean isMockEnabled() {
+        return !Settings.Secure.getString(applicationContext.getContentResolver(),
+                Settings.Secure.ALLOW_MOCK_LOCATION).equals("0");
     }
 
 }

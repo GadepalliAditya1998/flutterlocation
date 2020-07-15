@@ -9,7 +9,7 @@ part of location_platform_interface;
 /// speedAccuracy cannot be provided on iOS and thus is always 0.
 class LocationData {
   LocationData._(this.latitude, this.longitude, this.accuracy, this.altitude,
-      this.speed, this.speedAccuracy, this.heading, this.time);
+      this.speed, this.speedAccuracy, this.heading, this.time, {this.isMockLocation = false});
 
   factory LocationData.fromMap(Map<String, double> dataMap) {
     return LocationData._(
@@ -21,6 +21,7 @@ class LocationData {
       dataMap['speed_accuracy'],
       dataMap['heading'],
       dataMap['time'],
+      isMockLocation: dataMap['isMockLocation']?.toInt() == 1,
     );
   }
 
@@ -58,6 +59,13 @@ class LocationData {
   /// timestamp of the LocationData
   final double time;
 
+  /// Indicates if the location is mock or not.
+  /// 
+  /// - For ios it is always false.
+  /// - For android > Jelly Bean it uses Location API to get mock location data which is provided by google's Location Data.
+  /// - For android < Jelly bean, it is set to true if mock location setting is enabled in Settings.
+  final bool isMockLocation;
+
   @override
   String toString() => 'LocationData<lat: $latitude, long: $longitude>';
 
@@ -73,7 +81,8 @@ class LocationData {
           speed == other.speed &&
           speedAccuracy == other.speedAccuracy &&
           heading == other.heading &&
-          time == other.time;
+          time == other.time &&
+          isMockLocation == other.isMockLocation;
 
   @override
   int get hashCode =>
